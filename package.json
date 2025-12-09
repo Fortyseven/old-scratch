@@ -4,10 +4,10 @@
     "description": "A fully self-contained, single-page HTML application for composing and managing Markdown notes",
     "main": "build.js",
     "scripts": {
-        "build": "node build-modular.js",
-        "build:dev": "node build-modular.js --dev",
-        "watch": "node build-modular.js --watch",
-        "dev": "node build-modular.js --dev"
+        "build": "node build.js",
+        "build:dev": "node build.js --dev",
+        "watch": "node build.js --watch",
+        "dev": "node build.js --dev"
     },
     "keywords": [
         "markdown",

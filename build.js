@@ -2,8 +2,8 @@
 
 const fs = require("fs");
 const path = require("path");
+const esbuild = require("esbuild");
 const { minify: minifyHTML } = require("html-minifier-terser");
-const { minify: minifyJS } = require("terser");
 const CleanCSS = require("clean-css");
 
 // Paths
@@ -11,14 +11,30 @@ const SRC_DIR = path.join(__dirname, "src");
 const DIST_DIR = path.join(__dirname, "dist");
 const TEMPLATE_PATH = path.join(SRC_DIR, "template.html");
 const CSS_PATH = path.join(SRC_DIR, "styles.css");
-const JS_PATH = path.join(SRC_DIR, "app.js");
+const JS_ENTRY_PATH = path.join(SRC_DIR, "app.js");
 const OUTPUT_PATH = path.join(DIST_DIR, "index.html");
 
 // Parse command line arguments
 const args = process.argv.slice(2);
 const isWatch = args.includes("--watch");
 const isDev = args.includes("--dev");
-const shouldMinify = !isDev; // Minify by default, but not in dev mode
+const shouldMinify = !isDev;
+
+async function bundleJS() {
+    console.log("📦 Bundling JavaScript modules with esbuild...");
+
+    const result = await esbuild.build({
+        entryPoints: [JS_ENTRY_PATH],
+        bundle: true,
+        write: false,
+        minify: shouldMinify,
+        format: "iife", // Use IIFE to avoid needing type="module" in HTML
+        sourcemap: isDev ? "inline" : false,
+        logLevel: "info",
+    });
+
+    return result.outputFiles[0].text;
+}
 
 async function build() {
     console.log(
@@ -26,10 +42,15 @@ async function build() {
     );
 
     try {
+        // Ensure dist directory exists
+        if (!fs.existsSync(DIST_DIR)) {
+            fs.mkdirSync(DIST_DIR, { recursive: true });
+        }
+
         // Read source files
         const template = fs.readFileSync(TEMPLATE_PATH, "utf8");
         let css = fs.readFileSync(CSS_PATH, "utf8");
-        let js = fs.readFileSync(JS_PATH, "utf8");
+        let js = await bundleJS();
 
         // Minify CSS
         if (shouldMinify) {
@@ -40,142 +61,77 @@ async function build() {
             css = cssResult.styles;
         }
 
-        // Minify JavaScript
-        if (shouldMinify) {
-            const jsResult = await minifyJS(js, {
-                compress: {
-                    dead_code: true,
-                    drop_console: false,
-                    drop_debugger: true,
-                    keep_classnames: false,
-                    keep_fargs: true,
-                    keep_fnames: false,
-                    keep_infinity: false,
-                },
-                mangle: {
-                    toplevel: true,
-                },
-                format: {
-                    comments: false,
-                },
-            });
-            js = jsResult.code;
-        }
-
-        // Inject CSS and JS into template
-        // Handle both single-line (<!--CSS-->) and multi-line (<!--CSS\n-->) placeholders
-        let output = template.replace(/<!--CSS[\s\S]*?-->/g, css);
-        output = output.replace(/<!--JS[\s\S]*?-->/g, js);
+        // Replace placeholders in template
+        let html = template.replace("<!--CSS-->", css).replace("<!--JS-->", js);
 
         // Minify HTML
         if (shouldMinify) {
-            output = await minifyHTML(output, {
-                collapseWhitespace: true,
+            html = await minifyHTML(html, {
                 removeComments: true,
-                removeRedundantAttributes: true,
-                removeScriptTypeAttributes: true,
-                removeStyleLinkTypeAttributes: true,
-                useShortDoctype: true,
-                minifyCSS: true,
-                minifyJS: true,
+                collapseWhitespace: true,
+                minifyCSS: false, // Already minified
+                minifyJS: false, // Already minified by esbuild
             });
         }
 
-        // Ensure dist directory exists
-        if (!fs.existsSync(DIST_DIR)) {
-            fs.mkdirSync(DIST_DIR, { recursive: true });
-        }
-
-        // Write output file
-        fs.writeFileSync(OUTPUT_PATH, output, "utf8");
-
-        const stats = fs.statSync(OUTPUT_PATH);
-        const fileSizeKB = (stats.size / 1024).toFixed(2);
-
-        console.log(
-            `✅ Build complete! Output: ${OUTPUT_PATH} (${fileSizeKB} KB)`
-        );
+        // Write output
+        fs.writeFileSync(OUTPUT_PATH, html);
+        const fileSize = (fs.statSync(OUTPUT_PATH).size / 1024).toFixed(2);
+        console.log(`✅ Built successfully: ${OUTPUT_PATH} (${fileSize} KB)`);
     } catch (error) {
         console.error("❌ Build failed:", error.message);
         process.exit(1);
     }
 }
 
-function startWatch() {
-    console.log("👀 Watching for changes in src/...\n");
-
-    // Initial build
-    build().catch(console.error);
-
+async function watchBuild() {
+    console.log("👀 Watching for changes...");
     const chokidar = require("chokidar");
 
-    const watcher = chokidar.watch(SRC_DIR, {
+    const watcher = chokidar.watch(path.join(SRC_DIR, "**/*.{js,css,html}"), {
+        ignored: /node_modules/,
         persistent: true,
-        ignoreInitial: true,
     });
 
-    watcher.on("change", (filePath) => {
-        console.log(`\n📝 File changed: ${path.relative(__dirname, filePath)}`);
-        build().catch(console.error);
+    watcher.on("change", async () => {
+        console.log("\n📝 Files changed, rebuilding...");
+        await build();
     });
-
-    watcher.on("error", (error) => {
-        console.error("❌ Watcher error:", error);
-    });
-
-    console.log("\nPress Ctrl+C to stop watching\n");
 }
 
-function startDevServer() {
-    console.log("🚀 Starting development server...\n");
-
-    // Initial build
-    build().catch(console.error);
-
-    const chokidar = require("chokidar");
+async function devServer() {
+    console.log("🚀 Starting development server with live reload...");
     const browserSync = require("browser-sync").create();
 
-    // Start browser-sync
+    await build();
+
     browserSync.init({
         server: {
             baseDir: DIST_DIR,
-            index: "index.html",
         },
         port: 3000,
-        open: true,
-        notify: false,
         ui: false,
+        notify: false,
     });
 
-    // Watch for changes
-    const watcher = chokidar.watch(SRC_DIR, {
-        persistent: true,
-        ignoreInitial: true,
-    });
-
-    watcher.on("change", (filePath) => {
-        console.log(`\n📝 File changed: ${path.relative(__dirname, filePath)}`);
-        build()
-            .then(() => browserSync.reload())
-            .catch(console.error);
-    });
-
-    watcher.on("error", (error) => {
-        console.error("❌ Watcher error:", error);
-    });
-
-    console.log("\n✨ Dev server running at http://localhost:3000");
-    console.log("Press Ctrl+C to stop\n");
+    const chokidar = require("chokidar");
+    chokidar
+        .watch(path.join(SRC_DIR, "**/*.{js,css,html}"), {
+            ignored: /node_modules/,
+            persistent: true,
+        })
+        .on("change", async () => {
+            console.log("\n📝 Files changed, rebuilding...");
+            await build();
+            browserSync.reload();
+        });
 }
 
-// Main execution
-if (isDev) {
-    startDevServer();
-} else if (isWatch) {
-    startWatch();
+// Run based on arguments
+if (isWatch) {
+    watchBuild();
+} else if (isDev) {
+    devServer();
 } else {
-    build().catch((error) => {
-        console.error("Build error:", error);
-        process.exit(1);
-    });
+    build();
 }
