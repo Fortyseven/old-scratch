@@ -86,6 +86,31 @@
                 background-color: var(--bg-primary);
             }
 
+            .header-actions {
+                display: flex;
+                gap: 8px;
+                align-items: center;
+            }
+
+            .header-btn {
+                background: none;
+                border: 1px solid var(--border-color);
+                color: var(--text-primary);
+                padding: 6px 12px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 14px;
+                transition: background-color 0.2s;
+            }
+
+            .header-btn:hover {
+                background-color: var(--bg-primary);
+            }
+
+            #importFile {
+                display: none;
+            }
+
             .main-content {
                 display: flex;
                 flex: 1;
@@ -161,6 +186,39 @@
 
             .note-item.active .note-item-date {
                 color: rgba(255, 255, 255, 0.8);
+            }
+
+            .note-item-actions {
+                display: none;
+                position: absolute;
+                right: 0;
+                top: 0;
+                height: 100%;
+                background: inherit;
+                border-left: 1px solid var(--border-color);
+                padding: 12px 8px;
+                gap: 4px;
+            }
+
+            .note-item:hover .note-item-actions {
+                display: flex;
+                align-items: center;
+            }
+
+            .delete-note-btn {
+                background: none;
+                border: none;
+                color: var(--text-secondary);
+                cursor: pointer;
+                font-size: 14px;
+                padding: 4px 8px;
+                border-radius: 3px;
+                transition: all 0.2s;
+            }
+
+            .delete-note-btn:hover {
+                background-color: #ff4444;
+                color: white;
             }
 
             .editor-pane {
@@ -439,7 +497,12 @@
         <div class="container">
             <div class="header">
                 <h1>📝 Markdown Notes</h1>
-                <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+                <div class="header-actions">
+                    <button class="header-btn" id="exportAllBtn" title="Export all notes as JSON">⬇️ Export All</button>
+                    <button class="header-btn" id="importBtn" title="Import notes from JSON">⬆️ Import</button>
+                    <input type="file" id="importFile" accept=".json" />
+                    <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+                </div>
             </div>
             <div class="main-content">
                 <div class="sidebar">
@@ -634,6 +697,83 @@
                 editorHighlight.scrollLeft = editorInput.scrollLeft;
             });
 
+            // Export/Import functionality
+            function downloadFile(content, filename, type = 'text/plain') {
+                const blob = new Blob([content], { type });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            }
+
+            async function exportAllNotes() {
+                const notes = await getAllNotes();
+                const exportData = {
+                    version: 1,
+                    exportedAt: new Date().toISOString(),
+                    notes: notes
+                };
+                const jsonString = JSON.stringify(exportData, null, 2);
+                const timestamp = new Date().toISOString().slice(0, 10);
+                downloadFile(jsonString, `notes-export-${timestamp}.json`, 'application/json');
+            }
+
+            async function importNotes(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+
+                    reader.onload = async (e) => {
+                        try {
+                            const importData = JSON.parse(e.target.result);
+                            if (!importData.notes || !Array.isArray(importData.notes)) {
+                                reject(new Error('Invalid import format'));
+                                return;
+                            }
+
+                            let importedCount = 0;
+                            for (const note of importData.notes) {
+                                const newNote = {
+                                    title: note.title || 'Imported Note',
+                                    content: note.content || '',
+                                    createdAt: note.createdAt || Date.now(),
+                                    modifiedAt: Date.now()
+                                };
+                                await saveNote(newNote);
+                                importedCount++;
+                            }
+
+                            await loadNotesList();
+                            alert(`Successfully imported ${importedCount} note(s)`);
+                            resolve();
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+
+                    reader.onerror = () => reject(new Error('Failed to read file'));
+                    reader.readAsText(file);
+                });
+            }
+
+            function exportCurrentNoteAsMarkdown() {
+                if (currentNoteId === null) {
+                    alert('No note selected');
+                    return;
+                }
+
+                getNote(currentNoteId).then(note => {
+                    if (note) {
+                        const timestamp = new Date().toISOString().slice(0, 10);
+                        const filename = `${note.title || 'note'}-${timestamp}.md`;
+                        downloadFile(note.content, filename, 'text/markdown');
+                    }
+                });
+            }
+
             // Theme management
             function initTheme() {
                 const isDark = localStorage.getItem('darkMode') === 'true';
@@ -772,6 +912,7 @@
                     if (note.id === currentNoteId) {
                         li.classList.add('active');
                     }
+                    li.style.position = 'relative';
 
                     const title = document.createElement('div');
                     title.className = 'note-item-title';
@@ -781,8 +922,40 @@
                     date.className = 'note-item-date';
                     date.textContent = new Date(note.modifiedAt).toLocaleDateString();
 
+                    const actions = document.createElement('div');
+                    actions.className = 'note-item-actions';
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'delete-note-btn';
+                    deleteBtn.textContent = '🗑️';
+                    deleteBtn.title = 'Delete note';
+                    deleteBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        if (confirm(`Delete "${note.title}"? This cannot be undone.`)) {
+                            deleteNote(note.id).then(() => {
+                                if (currentNoteId === note.id) {
+                                    currentNoteId = null;
+                                }
+                                loadNotesList();
+                                // Select another note or show empty state
+                                getAllNotes().then(remainingNotes => {
+                                    if (remainingNotes.length > 0) {
+                                        selectNote(remainingNotes[0].id);
+                                    } else {
+                                        editorContent.style.display = 'none';
+                                        emptyState.style.display = 'flex';
+                                        editorToolbar.textContent = 'No notes yet';
+                                    }
+                                });
+                            });
+                        }
+                    });
+
+                    actions.appendChild(deleteBtn);
+
                     li.appendChild(title);
                     li.appendChild(date);
+                    li.appendChild(actions);
 
                     li.addEventListener('click', () => selectNote(note.id));
 
@@ -809,12 +982,82 @@
                 }
             }
 
+            // Get header elements
+            const exportAllBtn = document.getElementById('exportAllBtn');
+            const importBtn = document.getElementById('importBtn');
+            const importFile = document.getElementById('importFile');
+
             // Event listeners
             newNoteBtn.addEventListener('click', createNewNote);
             editorInput.addEventListener('input', () => {
                 updateHighlight();
                 updatePreview();
                 autoSaveNote();
+            });
+
+            exportAllBtn.addEventListener('click', exportAllNotes);
+
+            importBtn.addEventListener('click', () => {
+                importFile.click();
+            });
+
+            importFile.addEventListener('change', (e) => {
+                if (e.target.files.length > 0) {
+                    importNotes(e.target.files[0])
+                        .catch(error => alert('Import failed: ' + error.message));
+                    e.target.value = '';
+                }
+            });
+
+            // Right-click context menu for exporting current note
+            editorInput.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+                const menu = document.createElement('div');
+                menu.style.cssText = `
+                    position: fixed;
+                    top: ${e.clientY}px;
+                    left: ${e.clientX}px;
+                    background: var(--bg-secondary);
+                    border: 1px solid var(--border-color);
+                    border-radius: 4px;
+                    z-index: 1000;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+                `;
+
+                const menuItem = document.createElement('div');
+                menuItem.textContent = 'Export as Markdown';
+                menuItem.style.cssText = `
+                    padding: 8px 16px;
+                    cursor: pointer;
+                    color: var(--text-primary);
+                    font-size: 14px;
+                    transition: background-color 0.2s;
+                `;
+                menuItem.addEventListener('mouseenter', () => {
+                    menuItem.style.backgroundColor = 'var(--bg-primary)';
+                });
+                menuItem.addEventListener('mouseleave', () => {
+                    menuItem.style.backgroundColor = 'transparent';
+                });
+                menuItem.addEventListener('click', () => {
+                    exportCurrentNoteAsMarkdown();
+                    document.body.removeChild(menu);
+                });
+
+                menu.appendChild(menuItem);
+                document.body.appendChild(menu);
+
+                setTimeout(() => {
+                    if (document.body.contains(menu)) {
+                        document.body.removeChild(menu);
+                    }
+                }, 5000);
+
+                document.addEventListener('click', () => {
+                    if (document.body.contains(menu)) {
+                        document.body.removeChild(menu);
+                    }
+                }, { once: true });
             });
 
             // Initialize app
