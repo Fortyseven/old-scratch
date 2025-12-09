@@ -1,6 +1,5 @@
 # Dependencies
 node_modules/
-package-lock.json
 
 # Build output (optional - uncomment if you don't want to commit built files)
 dist/
