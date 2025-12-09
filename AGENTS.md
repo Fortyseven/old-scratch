@@ -210,8 +210,7 @@ A fully self-contained, single-page HTML application for composing and managing 
 - Success message shows count
 
 ### Switching Themes
-- Click theme toggle button in header
-- "🌙 Dark Mode" or "☀️ Light Mode"
+- Click theme toggle button in header, "🌙" or "☀️"
 - Theme immediately switches, preference saved
 
 ## Future Enhancement Ideas

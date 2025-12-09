@@ -278,7 +278,7 @@ function initTheme() {
     const isDark = localStorage.getItem("darkMode") === "true";
     if (isDark) {
         document.body.classList.add("dark-mode");
-        themeToggle.textContent = "☀️ Light Mode";
+        themeToggle.textContent = "☀️";
         loadLightModeStyles();
     }
 }
@@ -295,7 +295,7 @@ function loadLightModeStyles() {
 themeToggle.addEventListener("click", () => {
     const isDark = document.body.classList.toggle("dark-mode");
     localStorage.setItem("darkMode", isDark);
-    themeToggle.textContent = isDark ? "☀️ Light Mode" : "🌙 Dark Mode";
+    themeToggle.textContent = isDark ? "☀️" : "🌙";
 
     if (isDark) {
         document.querySelector('link[rel="stylesheet"]').href =
