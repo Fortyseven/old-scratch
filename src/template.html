@@ -32,15 +32,16 @@
                     <ul class="notes-list" id="notesList"></ul>
                 </div>
                 <div class="editor-pane">
-                    <div class="editor-toolbar" id="editorToolbar">
-                        Select a note or create a new one
-                    </div>
                     <div class="editor-content" id="editorContent" style="display: none;">
                         <div class="editor-wrapper">
                             <div class="editor-highlight" id="editorHighlight"></div>
                             <textarea class="editor-input" id="editorInput" placeholder="Write your markdown here..."></textarea>
                         </div>
                         <div class="preview-pane" id="previewPane"></div>
+                    </div>
+                    <div class="editor-toolbar" id="editorToolbar">
+                        <span id="toolbarInfo">Select a note or create a new one</span>
+                        <button class="toolbar-btn" id="exportNoteBtn" title="Export note as Markdown" style="display: none;">📝 Export</button>
                     </div>
                     <div class="empty-state" id="emptyState">
                         <p>Create a new note to get started</p>

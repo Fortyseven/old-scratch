@@ -25,7 +25,8 @@ export function getCurrentNoteId() {
 export function showEmptyState() {
     editorContent.style.display = "none";
     emptyState.style.display = "flex";
-    editorToolbar.textContent = "No notes yet";
+    document.getElementById("toolbarInfo").textContent = "No notes yet";
+    document.getElementById("exportNoteBtn").style.display = "none";
 }
 
 export function hideEmptyState() {
@@ -53,7 +54,10 @@ export function updateActiveNoteInList(noteId) {
 export function updateToolbar(note) {
     const created = new Date(note.createdAt).toLocaleString();
     const modified = new Date(note.modifiedAt).toLocaleString();
-    editorToolbar.textContent = `Created: ${created} | Modified: ${modified}`;
+    document.getElementById(
+        "toolbarInfo"
+    ).textContent = `Created: ${created} | Modified: ${modified}`;
+    document.getElementById("exportNoteBtn").style.display = "inline-block";
 }
 
 export async function loadNotesList() {

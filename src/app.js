@@ -21,11 +21,11 @@ const editorHighlight = document.getElementById("editorHighlight");
 const previewPane = document.getElementById("previewPane");
 const editorContent = document.getElementById("editorContent");
 const emptyState = document.getElementById("emptyState");
-const editorToolbar = document.getElementById("editorToolbar");
 const themeToggle = document.getElementById("themeToggle");
 const exportAllBtn = document.getElementById("exportAllBtn");
 const importBtn = document.getElementById("importBtn");
 const importFile = document.getElementById("importFile");
+const exportNoteBtn = document.getElementById("exportNoteBtn");
 
 // Event listeners
 newNoteBtn.addEventListener("click", createNewNote);
@@ -46,57 +46,7 @@ importFile.addEventListener("change", (e) => {
     }
 });
 themeToggle.addEventListener("click", toggleTheme);
-
-// Right-click context menu for exporting current note
-editorInput.addEventListener("contextmenu", (e) => {
-    e.preventDefault();
-    const menu = document.createElement("div");
-    menu.style.cssText = `
-        position: fixed;
-        top: ${e.clientY}px;
-        left: ${e.clientX}px;
-        background: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: 4px;
-        z-index: 1000;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    `;
-    const menuItem = document.createElement("div");
-    menuItem.textContent = "Export as Markdown";
-    menuItem.style.cssText = `
-        padding: 8px 16px;
-        cursor: pointer;
-        color: var(--text-primary);
-        font-size: 14px;
-        transition: background-color 0.2s;
-    `;
-    menuItem.addEventListener("mouseenter", () => {
-        menuItem.style.backgroundColor = "var(--bg-primary)";
-    });
-    menuItem.addEventListener("mouseleave", () => {
-        menuItem.style.backgroundColor = "transparent";
-    });
-    menuItem.addEventListener("click", () => {
-        exportCurrentNoteAsMarkdown();
-        document.body.removeChild(menu);
-    });
-    menu.appendChild(menuItem);
-    document.body.appendChild(menu);
-    setTimeout(() => {
-        if (document.body.contains(menu)) {
-            document.body.removeChild(menu);
-        }
-    }, 5000);
-    document.addEventListener(
-        "click",
-        () => {
-            if (document.body.contains(menu)) {
-                document.body.removeChild(menu);
-            }
-        },
-        { once: true }
-    );
-});
+exportNoteBtn.addEventListener("click", exportCurrentNoteAsMarkdown);
 
 // App initialization
 initTheme();
