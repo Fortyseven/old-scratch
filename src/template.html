@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Old Scratch</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+        <style>
+            <!--CSS
+            -->
+        </style>
+    </head>
+
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>📝 Old Scratch</h1>
+                <div class="header-actions">
+                    <button class="header-btn" id="exportAllBtn" title="Export all notes as JSON">⬇️ Export All</button>
+                    <button class="header-btn" id="importBtn" title="Import notes from JSON">⬆️ Import</button>
+                    <input type="file" id="importFile" accept=".json" />
+                    <button class="theme-toggle" id="themeToggle">🌙 Dark Mode</button>
+                </div>
+            </div>
+            <div class="main-content">
+                <div class="sidebar">
+                    <div class="sidebar-header">
+                        <button class="new-note-btn" id="newNoteBtn">+ New Note</button>
+                    </div>
+                    <ul class="notes-list" id="notesList"></ul>
+                </div>
+                <div class="editor-pane">
+                    <div class="editor-toolbar" id="editorToolbar">
+                        Select a note or create a new one
+                    </div>
+                    <div class="editor-content" id="editorContent" style="display: none;">
+                        <div class="editor-wrapper">
+                            <div class="editor-highlight" id="editorHighlight"></div>
+                            <textarea class="editor-input" id="editorInput" placeholder="Write your markdown here..."></textarea>
+                        </div>
+                        <div class="preview-pane" id="previewPane"></div>
+                    </div>
+                    <div class="empty-state" id="emptyState">
+                        <p>Create a new note to get started</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            <!--JS-->
+        </script>
+    </body>
+
+</html>

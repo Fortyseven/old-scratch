@@ -1,4 +1,4 @@
-# Markdown Notes - Single-Page Application
+# Old Scratch - Single-Page Application
 
 ## Project Overview
 
@@ -55,16 +55,29 @@ A fully self-contained, single-page HTML application for composing and managing 
 ## Technical Architecture
 
 ### File Structure
-Single file: `notes.html` (~850 lines)
-- HTML structure
-- Embedded CSS (with CSS variables for theming)
-- Embedded JavaScript (vanilla JS, no frameworks)
+
+**Production Output:**
+- `dist/notes.html` (~1119 lines, 28.58 KB) - Single portable file for distribution
+
+**Source Files:**
+- `src/template.html` - HTML structure with `<!--CSS-->` and `<!--JS-->` placeholders
+- `src/styles.css` - All CSS styles (variables, layout, syntax highlighting)
+- `src/app.js` - All JavaScript code (database, UI, editor functionality)
+
+**Build System:**
+- `build.js` - Node.js build script that assembles source files into single HTML
+- `package.json` - npm configuration with build/watch/dev scripts
+- `.gitignore` - Excludes node_modules and optionally dist/
 
 ### External Dependencies (CDN)
 1. **highlight.js** (v11.9.0): Syntax highlighting for code blocks in preview
    - Light theme: `atom-one-light.min.css`
    - Dark theme: `atom-one-dark.min.css`
 2. **marked.js** (v11.1.1): Markdown parsing for preview pane
+
+### Build Dependencies (npm)
+1. **chokidar** (^3.5.3): File watching for watch mode
+2. **browser-sync** (^2.29.3): Development server with live reload
 
 ### Database Schema (IndexedDB)
 
@@ -222,6 +235,52 @@ Potential features that could be added (not yet implemented):
 
 ## Development Notes
 
+### Development Workflow
+
+**Getting Started:**
+```bash
+# Install dependencies
+npm install
+
+# Build for production
+npm run build
+
+# Watch mode (auto-rebuild on changes)
+npm run watch
+
+# Development server (auto-rebuild + live reload at http://localhost:3000)
+npm run dev
+```
+
+**Source File Organization:**
+- `src/template.html` - HTML skeleton with injection placeholders (`<!--CSS-->` and `<!--JS-->`)
+- `src/styles.css` - All CSS extracted from the `<style>` tag
+- `src/app.js` - All JavaScript extracted from the `<script>` tag
+
+**Build Process:**
+1. Read source files (`template.html`, `styles.css`, `app.js`)
+2. Inject CSS content into `<!--CSS-->` placeholder in template
+3. Inject JavaScript content into `<!--JS-->` placeholder in template
+4. Write assembled output to `dist/notes.html`
+5. Result: Single portable HTML file identical to original architecture
+
+**Development Modes:**
+- `npm run build`: One-time build for production distribution
+- `npm run watch`: Watches `src/` for changes and auto-rebuilds
+- `npm run dev`: Runs watch mode + browser-sync server on port 3000 with live reload
+
+**Why This Architecture?**
+
+**Modular Development**: Source files separated for maintainability
+- Easier to navigate and edit specific concerns (HTML/CSS/JS)
+- Better syntax highlighting and IDE support for each file type
+- Git diffs more readable when changes isolated to specific files
+
+**Preserved Portability**: Build output remains single-file
+- Final `dist/notes.html` is still fully portable
+- No build process required for end users
+- Can be distributed/shared as single file just like original
+
 ### Why This Architecture?
 
 **Single File Design**: Entire app in one HTML file for maximum portability
@@ -232,11 +291,17 @@ Potential features that could be added (not yet implemented):
 - Can be run from any filesystem
 
 **No Framework**: Vanilla JavaScript chosen for:
-- Zero dependencies (except marked.js and highlight.js)
+- Zero runtime dependencies (except marked.js and highlight.js via CDN)
 - Smaller file size
-- No build/compile step
+- No compile step for end users
 - Direct DOM manipulation sufficient for this scope
 - Easier to understand and modify
+
+**Build System**: Simple Node.js script chosen for:
+- Transparent and customizable build process
+- No complex tooling or configuration
+- Easy to understand and modify
+- Minimal dependencies (just file watching and dev server)
 
 **IndexedDB**: Chosen over localStorage for:
 - Larger storage capacity
@@ -277,7 +342,7 @@ Potential features that could be added (not yet implemented):
    - Full re-render on each update
 
 ## File Size
-Current: ~850 lines, ~33KB (unminified)
+Current: ~1119 lines, ~28.58KB (unminified production build)
 
 ## Browser Support
 - Chrome/Edge: ✅
