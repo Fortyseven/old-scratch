@@ -1,5 +1,5 @@
 {
-    "name": "markdown-notes-app",
+    "name": "old-scratch",
     "version": "1.0.0",
     "description": "A fully self-contained, single-page HTML application for composing and managing Markdown notes",
     "main": "build.js",
