@@ -2,6 +2,17 @@
 
 A fully self-contained, single-page HTML application for composing and managing Markdown notes.
 
+## Features
+
+- Create unlimited markdown notes
+- Auto-save after 1 second of inactivity
+- Live preview with syntax highlighting
+- Dark/light theme toggle
+- Pin/favorite notes
+- Import/export notes as JSON
+- Export individual notes as Markdown files
+- Persistent storage using IndexedDB
+
 ## Quick Start
 
 ```bash
@@ -16,20 +27,6 @@ npm run watch
 
 # Development server with live reload
 npm run dev
-```
-
-## Project Structure
-
-```
-.
-├── src/                    # Source files
-│   ├── template.html      # HTML skeleton with placeholders
-│   ├── styles.css         # All CSS styles
-│   └── app.js             # All JavaScript code
-├── dist/                   # Build output
-│   └── index.html         # Single-file application (portable)
-├── build.js               # Build script
-└── package.json           # npm configuration
 ```
 
 ## Development Workflow
@@ -60,29 +57,3 @@ Output: `dist/index.html` - A single, portable HTML file that can be:
 - Opened directly in any browser
 - Shared as a single file
 - Run offline without a server
-
-## Build Process
-
-The build script (`build.js`):
-1. Reads source files from `src/`
-2. Injects CSS into `<style>` tag
-3. Injects JavaScript into `<script>` tag
-4. Outputs a single `dist/index.html` file
-
-This approach provides:
-- **Modular development** with separate files for easier editing
-- **Portable output** as a single HTML file
-- **No runtime dependencies** (except CDN resources for marked.js and highlight.js)
-
-## Features
-
-- Create unlimited markdown notes
-- Auto-save after 1 second of inactivity
-- Live preview with syntax highlighting
-- Dark/light theme toggle
-- Pin/favorite notes
-- Import/export notes as JSON
-- Export individual notes as Markdown files
-- Persistent storage using IndexedDB
-
-For full documentation, see [AGENTS.md](./AGENTS.md)
