@@ -221,6 +221,26 @@
                 color: white;
             }
 
+            .pin-note-btn {
+                background: none;
+                border: none;
+                color: var(--text-secondary);
+                cursor: pointer;
+                font-size: 14px;
+                padding: 4px 8px;
+                border-radius: 3px;
+                transition: all 0.2s;
+            }
+
+            .pin-note-btn:hover {
+                color: #ffa500;
+                background-color: rgba(255, 165, 0, 0.1);
+            }
+
+            .pin-note-btn.pinned {
+                color: #ffa500;
+            }
+
             .editor-pane {
                 flex: 1;
                 display: flex;
@@ -570,7 +590,14 @@
 
                     request.onerror = () => reject(request.error);
                     request.onsuccess = () => {
-                        resolve(request.result.sort((a, b) => b.modifiedAt - a.modifiedAt));
+                        const notes = request.result.sort((a, b) => {
+                            // Pinned notes first
+                            if (a.pinned && !b.pinned) return -1;
+                            if (!a.pinned && b.pinned) return 1;
+                            // Then by modified date
+                            return b.modifiedAt - a.modifiedAt;
+                        });
+                        resolve(notes);
                     };
                 });
             }
@@ -893,6 +920,16 @@
                 saveTimeout = setTimeout(saveCurrentNote, 1000);
             }
 
+            // Pin/Unpin functionality
+            async function togglePinNote(noteId) {
+                const note = await getNote(noteId);
+                if (note) {
+                    note.pinned = !note.pinned;
+                    await saveNote(note);
+                    await loadNotesList();
+                }
+            }
+
             // Load and display notes
             async function loadNotesList() {
                 const notes = await getAllNotes();
@@ -925,6 +962,18 @@
                     const actions = document.createElement('div');
                     actions.className = 'note-item-actions';
 
+                    const pinBtn = document.createElement('button');
+                    pinBtn.className = 'pin-note-btn';
+                    pinBtn.textContent = note.pinned ? '⭐' : '☆';
+                    pinBtn.title = note.pinned ? 'Unpin note' : 'Pin note';
+                    if (note.pinned) {
+                        pinBtn.classList.add('pinned');
+                    }
+                    pinBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        togglePinNote(note.id);
+                    });
+
                     const deleteBtn = document.createElement('button');
                     deleteBtn.className = 'delete-note-btn';
                     deleteBtn.textContent = '🗑️';
@@ -951,6 +1000,7 @@
                         }
                     });
 
+                    actions.appendChild(pinBtn);
                     actions.appendChild(deleteBtn);
 
                     li.appendChild(title);
