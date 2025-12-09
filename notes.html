@@ -182,18 +182,119 @@
                 flex: 1;
                 display: flex;
                 overflow: hidden;
+                position: relative;
+            }
+
+            .editor-wrapper {
+                flex: 1;
+                position: relative;
+                overflow: hidden;
+            }
+
+            .editor-highlight {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                padding: 16px;
+                font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+                font-size: 14px;
+                background-color: var(--input-bg);
+                color: var(--text-primary);
+                overflow: hidden;
+                pointer-events: none;
+                white-space: pre-wrap;
+                word-wrap: break-word;
+                z-index: 1;
+            }
+
+            .editor-highlight code {
+                background: none;
+                color: inherit;
+                padding: 0;
+                font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+                font-size: 14px;
             }
 
             .editor-input {
-                flex: 1;
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
                 padding: 16px;
                 font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
                 font-size: 14px;
                 border: none;
-                background-color: var(--input-bg);
-                color: var(--text-primary);
+                background-color: transparent;
+                color: transparent;
                 resize: none;
                 outline: none;
+                z-index: 2;
+                caret-color: var(--text-primary);
+                overflow: auto;
+            }
+
+            /* Markdown syntax highlighting colors */
+            .md-header {
+                color: #0066cc;
+                font-weight: bold;
+            }
+
+            .md-bold {
+                font-weight: bold;
+            }
+
+            .md-italic {
+                font-style: italic;
+            }
+
+            .md-code {
+                background-color: var(--hljs-bg);
+                color: #d4d4d4;
+            }
+
+            .md-link {
+                color: #0066cc;
+                text-decoration: underline;
+            }
+
+            .md-url {
+                color: #008000;
+            }
+
+            .md-list {
+                color: #666666;
+            }
+
+            .md-blockquote {
+                color: #999999;
+                font-style: italic;
+            }
+
+            body.dark-mode .md-header {
+                color: #66b3ff;
+            }
+
+            body.dark-mode .md-code {
+                color: #b4d4ff;
+            }
+
+            body.dark-mode .md-link {
+                color: #66b3ff;
+            }
+
+            body.dark-mode .md-url {
+                color: #4ec9b0;
+            }
+
+            body.dark-mode .md-list {
+                color: #a0a0a0;
+            }
+
+            body.dark-mode .md-blockquote {
+                color: #707070;
             }
 
             .preview-pane {
@@ -352,7 +453,10 @@
                         Select a note or create a new one
                     </div>
                     <div class="editor-content" id="editorContent" style="display: none;">
-                        <textarea class="editor-input" id="editorInput" placeholder="Write your markdown here..."></textarea>
+                        <div class="editor-wrapper">
+                            <div class="editor-highlight" id="editorHighlight"></div>
+                            <textarea class="editor-input" id="editorInput" placeholder="Write your markdown here..."></textarea>
+                        </div>
                         <div class="preview-pane" id="previewPane"></div>
                     </div>
                     <div class="empty-state" id="emptyState">
@@ -471,11 +575,64 @@
             const notesList = document.getElementById('notesList');
             const newNoteBtn = document.getElementById('newNoteBtn');
             const editorInput = document.getElementById('editorInput');
+            const editorHighlight = document.getElementById('editorHighlight');
             const previewPane = document.getElementById('previewPane');
             const editorContent = document.getElementById('editorContent');
             const emptyState = document.getElementById('emptyState');
             const editorToolbar = document.getElementById('editorToolbar');
             const themeToggle = document.getElementById('themeToggle');
+
+            // Markdown syntax highlighting function
+            function highlightMarkdown(text) {
+                let highlighted = text;
+
+                // Escape HTML
+                highlighted = highlighted.replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;');
+
+                // Headers (# ## ### etc)
+                highlighted = highlighted.replace(/^(#{1,6})\s+(.+?)$/gm,
+                    '<span class="md-header">$1 $2</span>');
+
+                // Inline code `code`
+                highlighted = highlighted.replace(/`([^`]+)`/g,
+                    '<span class="md-code">`$1`</span>');
+
+                // Bold **text** or __text__
+                highlighted = highlighted.replace(/(\*\*|__)([^*_]+)\1/g,
+                    '<span class="md-bold">$1$2$1</span>');
+
+                // Italic *text* or _text_
+                highlighted = highlighted.replace(/(\*|_)([^*_]+)\1/g,
+                    '<span class="md-italic">$1$2$1</span>');
+
+                // Links [text](url)
+                highlighted = highlighted.replace(/\[([^\]]+)\]\(([^)]+)\)/g,
+                    '<span class="md-link">[$1]</span><span class="md-url">($2)</span>');
+
+                // Blockquotes > text
+                highlighted = highlighted.replace(/^&gt;\s+(.+?)$/gm,
+                    '<span class="md-blockquote">&gt; $1</span>');
+
+                // Lists - and * and +
+                highlighted = highlighted.replace(/^(\s*)([*+-]|\d+\.)\s+/gm,
+                    '$1<span class="md-list">$2</span> ');
+
+                return highlighted;
+            }
+
+            function updateHighlight() {
+                const text = editorInput.value;
+                const highlighted = highlightMarkdown(text);
+                editorHighlight.innerHTML = highlighted;
+            }
+
+            // Sync scrolling between textarea and highlight
+            editorInput.addEventListener('scroll', () => {
+                editorHighlight.scrollTop = editorInput.scrollTop;
+                editorHighlight.scrollLeft = editorInput.scrollLeft;
+            });
 
             // Theme management
             function initTheme() {
@@ -533,6 +690,7 @@
                 getNote(id).then(note => {
                     if (note) {
                         editorInput.value = note.content;
+                        updateHighlight();
                         updateToolbar(note);
                         updatePreview();
                         editorContent.style.display = 'flex';
@@ -654,6 +812,7 @@
             // Event listeners
             newNoteBtn.addEventListener('click', createNewNote);
             editorInput.addEventListener('input', () => {
+                updateHighlight();
                 updatePreview();
                 autoSaveNote();
             });
