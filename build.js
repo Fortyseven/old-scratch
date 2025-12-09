@@ -26,8 +26,9 @@ function build() {
         const js = fs.readFileSync(JS_PATH, "utf8");
 
         // Inject CSS and JS into template
-        let output = template.replace("<!--CSS-->", css);
-        output = output.replace("<!--JS-->", js);
+        // Handle both single-line (<!--CSS-->) and multi-line (<!--CSS\n-->) placeholders
+        let output = template.replace(/<!--CSS[\s\S]*?-->/g, css);
+        output = output.replace(/<!--JS[\s\S]*?-->/g, js);
 
         // Ensure dist directory exists
         if (!fs.existsSync(DIST_DIR)) {
