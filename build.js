@@ -9,7 +9,7 @@ const DIST_DIR = path.join(__dirname, "dist");
 const TEMPLATE_PATH = path.join(SRC_DIR, "template.html");
 const CSS_PATH = path.join(SRC_DIR, "styles.css");
 const JS_PATH = path.join(SRC_DIR, "app.js");
-const OUTPUT_PATH = path.join(DIST_DIR, "notes.html");
+const OUTPUT_PATH = path.join(DIST_DIR, "index.html");
 
 // Parse command line arguments
 const args = process.argv.slice(2);
@@ -17,7 +17,7 @@ const isWatch = args.includes("--watch");
 const isDev = args.includes("--dev");
 
 function build() {
-    console.log("🔨 Building notes.html...");
+    console.log("🔨 Building index.html...");
 
     try {
         // Read source files
@@ -88,7 +88,7 @@ function startDevServer() {
     browserSync.init({
         server: {
             baseDir: DIST_DIR,
-            index: "notes.html",
+            index: "index.html",
         },
         port: 3000,
         open: true,

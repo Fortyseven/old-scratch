@@ -27,7 +27,7 @@ npm run dev
 │   ├── styles.css         # All CSS styles
 │   └── app.js             # All JavaScript code
 ├── dist/                   # Build output
-│   └── notes.html         # Single-file application (portable)
+│   └── index.html         # Single-file application (portable)
 ├── build.js               # Build script
 └── package.json           # npm configuration
 ```
@@ -56,7 +56,7 @@ npm run dev
 npm run build
 ```
 
-Output: `dist/notes.html` - A single, portable HTML file that can be:
+Output: `dist/index.html` - A single, portable HTML file that can be:
 - Opened directly in any browser
 - Shared as a single file
 - Run offline without a server
@@ -67,7 +67,7 @@ The build script (`build.js`):
 1. Reads source files from `src/`
 2. Injects CSS into `<style>` tag
 3. Injects JavaScript into `<script>` tag
-4. Outputs a single `dist/notes.html` file
+4. Outputs a single `dist/index.html` file
 
 This approach provides:
 - **Modular development** with separate files for easier editing

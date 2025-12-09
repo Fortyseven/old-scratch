@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-A fully self-contained, single-page HTML application for composing and managing Markdown notes with syntax highlighting, preview, and persistent storage. The entire application exists in one portable `notes.html` file.
+A fully self-contained, single-page HTML application for composing and managing Markdown notes with syntax highlighting, preview, and persistent storage. The entire application exists in one portable HTML file.
 
 ## Core Features
 
@@ -57,7 +57,7 @@ A fully self-contained, single-page HTML application for composing and managing 
 ### File Structure
 
 **Production Output:**
-- `dist/notes.html` (~1119 lines, 28.58 KB) - Single portable file for distribution
+- `dist/index.html` (~1119 lines, 28.58 KB) - Single portable file for distribution
 
 **Source Files:**
 - `src/template.html` - HTML structure with `<!--CSS-->` and `<!--JS-->` placeholders
@@ -261,7 +261,7 @@ npm run dev
 1. Read source files (`template.html`, `styles.css`, `app.js`)
 2. Inject CSS content into `<!--CSS-->` placeholder in template
 3. Inject JavaScript content into `<!--JS-->` placeholder in template
-4. Write assembled output to `dist/notes.html`
+4. Write assembled output to `dist/index.html`
 5. Result: Single portable HTML file identical to original architecture
 
 **Development Modes:**
@@ -277,7 +277,7 @@ npm run dev
 - Git diffs more readable when changes isolated to specific files
 
 **Preserved Portability**: Build output remains single-file
-- Final `dist/notes.html` is still fully portable
+- Final `dist/index.html` is still fully portable
 - No build process required for end users
 - Can be distributed/shared as single file just like original
 
