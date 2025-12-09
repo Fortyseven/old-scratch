@@ -1,4 +1,4 @@
-# Old Scratch - Development
+# Old Scratch
 
 A fully self-contained, single-page HTML application for composing and managing Markdown notes.
 
