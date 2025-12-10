@@ -5,12 +5,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>😈 Old Scratch</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
-        <style>
-            <!--CSS-->
-        </style>
+        <style replaceme></style>
     </head>
 
     <body>
@@ -41,7 +36,10 @@
                     </div>
                     <div class="editor-toolbar" id="editorToolbar">
                         <span id="toolbarInfo">Select a note or create a new one</span>
-                        <button class="toolbar-btn" id="exportNoteBtn" title="Export note as Markdown" style="display: none;">📝 Export</button>
+                        <div class="toolbar-actions">
+                            <button class="toolbar-btn" id="togglePreviewBtn" title="Toggle preview pane" style="display: none;">👁️ Preview</button>
+                            <button class="toolbar-btn" id="exportNoteBtn" title="Export note as Markdown" style="display: none;">📝 Export</button>
+                        </div>
                     </div>
                     <div class="empty-state" id="emptyState">
                         <p>Create a new note to get started</p>
@@ -49,10 +47,6 @@
                 </div>
             </div>
         </div>
-
-        <script>
-            <!--JS-->
-        </script>
+        <script replaceme></script>
     </body>
-
 </html>

@@ -1,5 +1,11 @@
 /* Components: buttons, toolbars, and utilities */
 
+/* Toolbar actions group */
+.toolbar-actions {
+    display: flex;
+    gap: 8px;
+}
+
 /* Theme toggle button */
 .theme-toggle {
     background: none;

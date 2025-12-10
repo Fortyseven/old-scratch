@@ -59,7 +59,7 @@ export async function saveCurrentNote() {
         note.content = editorInput.value;
         note.modifiedAt = Date.now();
 
-        const lines = note.content.split("\n");
+        const lines = note.content.split(/\r?\n/);
         let title = lines[0].replace(/^#+\s*/, "").trim();
         if (!title) {
             title =

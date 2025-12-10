@@ -12,6 +12,16 @@
     display: flex;
     overflow: hidden;
     position: relative;
+
+    &.preview-hidden {
+        .preview-pane {
+            display: none;
+        }
+
+        .editor-wrapper {
+            width: 100%;
+        }
+    }
 }
 
 .editor-wrapper {

@@ -16,6 +16,19 @@ const CSS_PATH = path.join(SRC_DIR, "styles.css");
 const JS_ENTRY_PATH = path.join(SRC_DIR, "app.js");
 const OUTPUT_PATH = path.join(DIST_DIR, "index.html");
 
+// highlight.js theme CSS (dark/light) to inline into the bundle
+const HLJS_STYLES_DIR = path.join(
+    __dirname,
+    "node_modules",
+    "highlight.js",
+    "styles"
+);
+const HLJS_DARK_CSS_PATH = path.join(HLJS_STYLES_DIR, "atom-one-dark.min.css");
+const HLJS_LIGHT_CSS_PATH = path.join(
+    HLJS_STYLES_DIR,
+    "atom-one-light.min.css"
+);
+
 // Parse command line arguments
 const args = process.argv.slice(2);
 const isWatch = args.includes("--watch");
@@ -43,6 +56,7 @@ async function bundleJS() {
         write: false,
         minify: shouldMinify,
         format: "iife", // Use IIFE to avoid needing type="module" in HTML
+        // sourcemap: isDev ? "inline" : false,
         sourcemap: isDev ? "inline" : false,
         logLevel: "info",
     });
@@ -68,6 +82,24 @@ async function build() {
         const template = fs.readFileSync(TEMPLATE_PATH, "utf8");
         let js = await bundleJS();
 
+        // Inline highlight.js theme CSS as global strings for runtime theme switching
+        const hljsDarkCss = fs.readFileSync(HLJS_DARK_CSS_PATH, "utf8");
+        const hljsLightCss = fs.readFileSync(HLJS_LIGHT_CSS_PATH, "utf8");
+
+        // Escape characters that are treated as line terminators in JS
+        // (notably U+2028/U+2029) so they don't break the inline script.
+        const escapeForInlineJsString = (str) =>
+            JSON.stringify(str)
+                .replace(/\u2028/g, "\\u2028")
+                .replace(/\u2029/g, "\\u2029");
+
+        const hljsConfig = [
+            `window.HLJS_DARK_CSS = ${escapeForInlineJsString(hljsDarkCss)};`,
+            `window.HLJS_LIGHT_CSS = ${escapeForInlineJsString(hljsLightCss)};`,
+        ].join("");
+
+        js = `${hljsConfig}${js}`;
+
         // Minify CSS (additional minification on top of SCSS output)
         if (shouldMinify) {
             const cssResult = new CleanCSS({
@@ -78,16 +110,27 @@ async function build() {
         }
 
         // Replace placeholders in template
-        let html = template.replace("<!--CSS-->", css).replace("<!--JS-->", js);
+        let html = template
+            .replace("<style replaceme></style>", `<style>${css}</style>`)
+            .replace("<script replaceme></script>", `<script>${js}</script>`);
 
-        // Minify HTML
+        // Minify HTML. If minification fails (e.g. due to complex
+        // inline scripts), fall back to the unminified HTML so the
+        // build still succeeds.
         if (shouldMinify) {
-            html = await minifyHTML(html, {
-                removeComments: true,
-                collapseWhitespace: true,
-                minifyCSS: false, // Already minified
-                minifyJS: false, // Already minified by esbuild
-            });
+            try {
+                html = await minifyHTML(html, {
+                    removeComments: true,
+                    collapseWhitespace: true,
+                    minifyCSS: false, // Already minified
+                    minifyJS: false, // Already minified by esbuild
+                });
+            } catch (minifyError) {
+                console.warn(
+                    "⚠️ HTML minification failed; using unminified HTML:",
+                    minifyError.message
+                );
+            }
         }
 
         // Write output

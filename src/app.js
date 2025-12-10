@@ -12,6 +12,7 @@ import {
     importNotes,
     exportCurrentNoteAsMarkdown,
 } from "./components/importExport.js";
+import { togglePreviewPane } from "./components/ui.js";
 
 // DOM elements
 const notesList = document.getElementById("notesList");
@@ -26,6 +27,7 @@ const exportAllBtn = document.getElementById("exportAllBtn");
 const importBtn = document.getElementById("importBtn");
 const importFile = document.getElementById("importFile");
 const exportNoteBtn = document.getElementById("exportNoteBtn");
+const togglePreviewBtn = document.getElementById("togglePreviewBtn");
 
 // Event listeners
 newNoteBtn.addEventListener("click", createNewNote);
@@ -47,7 +49,15 @@ importFile.addEventListener("change", (e) => {
 });
 themeToggle.addEventListener("click", toggleTheme);
 exportNoteBtn.addEventListener("click", exportCurrentNoteAsMarkdown);
+togglePreviewBtn.addEventListener("click", togglePreviewPane);
 
 // App initialization
 initTheme();
+
+// Restore preview pane state
+const previewHidden = localStorage.getItem("previewHidden") === "true";
+if (previewHidden) {
+    editorContent.classList.add("preview-hidden");
+}
+
 initializeApp();

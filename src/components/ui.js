@@ -58,6 +58,16 @@ export function updateToolbar(note) {
         "toolbarInfo"
     ).textContent = `Created: ${created} | Modified: ${modified}`;
     document.getElementById("exportNoteBtn").style.display = "inline-block";
+    document.getElementById("togglePreviewBtn").style.display = "inline-block";
+}
+
+export function togglePreviewPane() {
+    const editorContent = document.getElementById("editorContent");
+    editorContent.classList.toggle("preview-hidden");
+
+    // Save preference to localStorage
+    const isHidden = editorContent.classList.contains("preview-hidden");
+    localStorage.setItem("previewHidden", isHidden ? "true" : "false");
 }
 
 export async function loadNotesList() {
