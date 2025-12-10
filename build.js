@@ -5,11 +5,13 @@ const path = require("path");
 const esbuild = require("esbuild");
 const { minify: minifyHTML } = require("html-minifier-terser");
 const CleanCSS = require("clean-css");
+const sass = require("sass");
 
 // Paths
 const SRC_DIR = path.join(__dirname, "src");
 const DIST_DIR = path.join(__dirname, "dist");
 const TEMPLATE_PATH = path.join(SRC_DIR, "template.html");
+const SCSS_ENTRY_PATH = path.join(SRC_DIR, "styles", "index.scss");
 const CSS_PATH = path.join(SRC_DIR, "styles.css");
 const JS_ENTRY_PATH = path.join(SRC_DIR, "app.js");
 const OUTPUT_PATH = path.join(DIST_DIR, "index.html");
@@ -19,6 +21,18 @@ const args = process.argv.slice(2);
 const isWatch = args.includes("--watch");
 const isDev = args.includes("--dev");
 const shouldMinify = !isDev;
+
+function compileSCSS() {
+    console.log("🎨 Compiling SCSS...");
+
+    const scssContent = fs.readFileSync(SCSS_ENTRY_PATH, "utf8");
+    const result = sass.compileString(scssContent, {
+        loadPaths: [path.join(SRC_DIR, "styles")],
+        style: shouldMinify ? "compressed" : "expanded",
+    });
+
+    return result.css;
+}
 
 async function bundleJS() {
     console.log("📦 Bundling JavaScript modules with esbuild...");
@@ -47,12 +61,14 @@ async function build() {
             fs.mkdirSync(DIST_DIR, { recursive: true });
         }
 
+        // Compile SCSS first
+        let css = compileSCSS();
+
         // Read source files
         const template = fs.readFileSync(TEMPLATE_PATH, "utf8");
-        let css = fs.readFileSync(CSS_PATH, "utf8");
         let js = await bundleJS();
 
-        // Minify CSS
+        // Minify CSS (additional minification on top of SCSS output)
         if (shouldMinify) {
             const cssResult = new CleanCSS({
                 level: 2,
@@ -88,10 +104,13 @@ async function watchBuild() {
     console.log("👀 Watching for changes...");
     const chokidar = require("chokidar");
 
-    const watcher = chokidar.watch(path.join(SRC_DIR, "**/*.{js,css,html}"), {
-        ignored: /node_modules/,
-        persistent: true,
-    });
+    const watcher = chokidar.watch(
+        path.join(SRC_DIR, "**/*.{js,scss,css,html}"),
+        {
+            ignored: /node_modules/,
+            persistent: true,
+        }
+    );
 
     watcher.on("change", async () => {
         console.log("\n📝 Files changed, rebuilding...");
@@ -116,7 +135,7 @@ async function devServer() {
 
     const chokidar = require("chokidar");
     chokidar
-        .watch(path.join(SRC_DIR, "**/*.{js,css,html}"), {
+        .watch(path.join(SRC_DIR, "**/*.{js,scss,css,html}"), {
             ignored: /node_modules/,
             persistent: true,
         })

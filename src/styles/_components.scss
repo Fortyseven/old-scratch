@@ -1,0 +1,124 @@
+/* Components: buttons, toolbars, and utilities */
+
+/* Theme toggle button */
+.theme-toggle {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: var(--bg-primary);
+    }
+}
+
+/* Header buttons */
+.header-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s;
+
+    &:hover {
+        background-color: var(--bg-primary);
+    }
+}
+
+/* Hidden file input */
+#importFile {
+    display: none;
+}
+
+/* Delete note button */
+.delete-note-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    transition: all 0.2s;
+
+    &:hover {
+        background-color: #ff4444;
+        color: white;
+    }
+}
+
+/* Pin note button */
+.pin-note-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    transition: all 0.2s;
+
+    &:hover {
+        color: #ffa500;
+        background-color: rgba(255, 165, 0, 0.1);
+    }
+
+    &.pinned {
+        color: #ffa500;
+    }
+}
+
+/* Empty state */
+.empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+    color: var(--text-secondary);
+
+    p {
+        font-size: 16px;
+    }
+}
+
+/* Editor toolbar */
+.editor-toolbar {
+    padding: 8px 16px;
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+}
+
+#toolbarInfo {
+    flex: 1;
+}
+
+/* Toolbar button */
+.toolbar-btn {
+    background: none;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 4px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 12px;
+    transition: background-color 0.2s;
+    white-space: nowrap;
+
+    &:hover {
+        background-color: var(--bg-primary);
+    }
+}

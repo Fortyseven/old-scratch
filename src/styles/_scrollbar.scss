@@ -1,0 +1,29 @@
+/* Scrollbar styling */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 4px;
+
+    &:hover {
+        background-color: var(--text-secondary);
+    }
+}
+
+/* Syntax highlighting for code blocks */
+body.dark-mode .hljs {
+    background: var(--hljs-bg);
+    color: #e0e0e0;
+}
+
+body:not(.dark-mode) .hljs {
+    background: var(--hljs-bg);
+}

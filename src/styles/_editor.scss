@@ -1,0 +1,130 @@
+/* Editor pane and syntax highlighting */
+
+.editor-pane {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.editor-content {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+}
+
+.editor-wrapper {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+.editor-highlight {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+    font-size: 14px;
+    background-color: var(--input-bg);
+    color: var(--text-primary);
+    overflow: hidden;
+    pointer-events: none;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    z-index: 1;
+
+    code {
+        background: none;
+        color: inherit;
+        padding: 0;
+        font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+        font-size: 14px;
+    }
+}
+
+.editor-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    padding: 16px;
+    font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+    font-size: 14px;
+    border: none;
+    background-color: transparent;
+    color: transparent;
+    resize: none;
+    outline: none;
+    z-index: 2;
+    caret-color: var(--text-primary);
+    overflow: auto;
+}
+
+/* Markdown syntax highlighting - Light mode */
+.md-header {
+    color: #0066cc;
+    font-weight: bold;
+}
+
+.md-bold {
+    font-weight: bold;
+}
+
+.md-italic {
+    font-style: italic;
+}
+
+.md-code {
+    background-color: var(--hljs-bg);
+    color: #d4d4d4;
+}
+
+.md-link {
+    color: #0066cc;
+    text-decoration: underline;
+}
+
+.md-url {
+    color: #008000;
+}
+
+.md-list {
+    color: #666666;
+}
+
+.md-blockquote {
+    color: #999999;
+    font-style: italic;
+}
+
+/* Markdown syntax highlighting - Dark mode */
+body.dark-mode {
+    .md-header {
+        color: #66b3ff;
+    }
+
+    .md-code {
+        color: #b4d4ff;
+    }
+
+    .md-link {
+        color: #66b3ff;
+    }
+
+    .md-url {
+        color: #4ec9b0;
+    }
+
+    .md-list {
+        color: #a0a0a0;
+    }
+
+    .md-blockquote {
+        color: #707070;
+    }
+}
