@@ -16,6 +16,7 @@
                     <button class="header-btn" id="exportAllBtn" title="Export all notes as JSON">⬇️ Export All</button>
                     <button class="header-btn" id="importBtn" title="Import notes from JSON">⬆️ Import</button>
                     <input type="file" id="importFile" accept=".json" />
+                    <button class="header-btn" id="settingsBtn" title="Settings">⚙️</button>
                     <button class="theme-toggle" id="themeToggle">🌙</button>
                 </div>
             </div>
@@ -43,6 +44,28 @@
                     </div>
                     <div class="empty-state" id="emptyState">
                         <p>Create a new note to get started</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Settings Dialog -->
+        <div class="settings-dialog-overlay" id="settingsOverlay" style="display: none;">
+            <div class="settings-dialog">
+                <div class="settings-header">
+                    <h2>Settings</h2>
+                    <button class="settings-close" id="settingsClose">✕</button>
+                </div>
+                <div class="settings-content">
+                    <div class="settings-group">
+                        <label for="fontSizeInput">Base Font Size (px)</label>
+                        <div class="font-size-controls">
+                            <button class="font-size-btn" id="fontSizeDecrease" title="Decrease font size">−</button>
+                            <input type="range" id="fontSizeInput" class="font-size-slider" min="12" max="32" value="16" />
+                            <button class="font-size-btn" id="fontSizeIncrease" title="Increase font size">+</button>
+                        </div>
+                        <div class="font-size-value">
+                            <span id="fontSizeValue">16</span> px
+                        </div>
                     </div>
                 </div>
             </div>

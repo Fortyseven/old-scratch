@@ -13,6 +13,7 @@ import {
     exportCurrentNoteAsMarkdown,
 } from "./components/importExport.js";
 import { togglePreviewPane } from "./components/ui.js";
+import { initSettings } from "./components/settings.js";
 
 // DOM elements
 const notesList = document.getElementById("notesList");
@@ -53,6 +54,7 @@ togglePreviewBtn.addEventListener("click", togglePreviewPane);
 
 // App initialization
 initTheme();
+initSettings();
 
 // Restore preview pane state
 const previewHidden = localStorage.getItem("previewHidden") === "true";
